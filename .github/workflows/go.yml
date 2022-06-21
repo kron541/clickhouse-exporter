@@ -1,0 +1,44 @@
+name: Go
+
+on:
+  push:
+    tags:
+      - '**'
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.18
+
+    - name: Install promu package
+      run: go get -v github.com/prometheus/promu
+
+    - name: Build
+      run: |
+        for GOOS in linux; do
+          for GOARCH in amd64; do
+            echo "Building $GOOS-$GOARCH"
+            export GOOS=$GOOS
+            export GOARCH=$GOARCH
+            promu build -v --prefix=build
+            mv build/clickhouse-exporter build/clickhouse-exporter-${GOOS}-${GOARCH}
+          done
+        done
+        promu -v checksum build/
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          build/*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
