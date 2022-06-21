@@ -1,0 +1,45 @@
+configVersion: 1
+project: clickhouse-exporter
+---
+artifact: builder
+from: golang:1.18-buster
+git:
+- url: https://github.com/altinity/clickhouse-operator
+  tag: '0.18.5'
+  to: /src/clickhouse-operator
+- add: /
+  to: /src/clickhouse-exporter
+  includePaths:
+  - .promu.yml
+  - go.mod
+  - go.sum
+  - '**/*.go'
+  stageDependencies:
+    install:
+    - '**/*'
+shell:
+  beforeInstall:
+    go install -v github.com/prometheus/promu@v0.13.0
+  install: |
+    cd /src/clickhouse-exporter && /go/bin/promu build -v --prefix build
+---
+image: clickhouse-exporter
+from: debian:buster-slim
+docker:
+  CMD: ["/clickhouse-exporter"]
+import:
+- artifact: builder
+  add: /src/clickhouse-exporter/build/clickhouse-exporter
+  to: /clickhouse-exporter
+  before: install
+mount:
+- from: tmp_dir
+  to: /var/cache/apt
+- from: tmp_dir
+  to: /var/lib/apt/lists
+shell:
+  beforeInstall: |
+    DEBIAN_FRONTEND=noninteractive; apt-get update \
+      && apt-get install -qy --no-install-recommends \
+          ca-certificates \
+          curl
