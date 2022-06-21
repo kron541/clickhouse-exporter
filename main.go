@@ -48,21 +48,21 @@ var (
 
 func init() {
 	host, _ := os.Hostname()
-	kingpin.Flag("chi-name", "Clickhouse cluster name.").
-		Default(host).StringVar(&chiName)
-	kingpin.Flag("namespace", "The namespace label for metrics.").
+	kingpin.Flag("chi-name", "Clickhouse cluster name or $HOSTNAME.").
+		Default(host).Envar("HOSTNAME").StringVar(&chiName)
+	kingpin.Flag("namespace", "The namespace label for metrics or $NAMESPACE.").
 		Default(defaultNamespace).Envar("NAMESPACE").StringVar(&namespace)
 	kingpin.Flag("metrics-endpoint", "The Prometheus exporter endpoint.").
 		Default(defaultMetricsEndpoint).StringVar(&metricsEP)
 	kingpin.Flag("chi-list-endpoint", "The CHI list endpoint.").
 		Default(defaultChiListEP).StringVar(&chiListEP)
-	kingpin.Flag("scheme", "Clickhouse HTTP scheme.").
+	kingpin.Flag("scheme", "Clickhouse HTTP scheme or $CH_SCHEME").
 		Default(defaultChScheme).Envar("CH_SCHEME").EnumVar(&scheme, "http", "https")
-	kingpin.Flag("username", "Clickhouse username.").
+	kingpin.Flag("username", "Clickhouse username or $CH_USERNAME.").
 		Default(defaultChUser).Envar("CH_USERNAME").StringVar(&username)
-	kingpin.Flag("password", "Clickhouse user password.").
+	kingpin.Flag("password", "Clickhouse user password or $CH_PASSWORD.").
 		Default(defaultChPass).Envar("CH_PASSWORD").StringVar(&password)
-	kingpin.Flag("port", "Clickhouse HTTP port number.").
+	kingpin.Flag("port", "Clickhouse HTTP port number or $CH_PORT.").
 		Default(defaultChPort).Envar("CH_PORT").IntVar(&port)
 	kingpin.Flag("address", "A list of Clickhouse hosts").
 		Default(defaultChHost).StringsVar(&hostnames)
