@@ -1,5 +1,9 @@
 configVersion: 1
 project: clickhouse-exporter
+build:
+  platform:
+  - linux/amd64
+  - linux/arm64
 ---
 artifact: builder
 from: golang:1.21-bullseye

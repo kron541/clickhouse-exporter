@@ -32,7 +32,7 @@ jobs:
       run: |
         cd clickhouse-exporter
         for GOOS in linux; do
-          for GOARCH in amd64; do
+          for GOARCH in amd64 arm64; do
             echo "Building $GOOS-$GOARCH"
             export GOOS=$GOOS
             export GOARCH=$GOARCH
